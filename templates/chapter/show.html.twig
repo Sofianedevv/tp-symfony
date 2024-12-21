@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ chapter.title }}{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">
+            MonSite
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            Bonjour {{ app.user.firstName }} {{ app.user.lastName }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_register') }}">Inscription</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_subject_show', {'id': subject.id}) }}">{{ subject.name }}</a></li>
+            <li class="breadcrumb-item active">{{ chapter.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ chapter.title }}</h1>
+        <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-outline-primary">Retour aux chapitres</a>
+    </div>
+
+    <div class="row">
+        {% for exercise in exercises %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ exercise.title }}</h5>
+                        <p class="card-text">
+                            {{ exercise.content|slice(0, 100) }}...
+                        </p>
+                        <a href="{{ path('app_exercice_show', {'id': exercise.id}) }}" class="btn btn-primary">Voir l'exercice</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Aucun exercice n'est disponible pour ce chapitre pour le moment.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .navbar {
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        margin-bottom: 2rem;
+    }
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+    .nav-link {
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .card-title {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card-text {
+        color: #666;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-item a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+</style>
+{% endblock %} 

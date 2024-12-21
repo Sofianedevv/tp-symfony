@@ -1,0 +1,24 @@
+App\Entity\User:
+    user_{1..10}:
+        email: 'user<current()>\@example.com'
+        roles: ['ROLE_USER']
+        password: '\$2y\$13\$hsfY6g2vqW.uC/BRMeCrreHV6L555M6qjNZUvpCH9E3tZD77.ygK6' # 'password123'
+        firstName: '<firstName()>'
+        lastName: '<lastName()>'
+        isVerified: true
+
+    admin:
+        email: 'admin@example.com'
+        roles: ['ROLE_ADMIN']
+        password: 'jesuisadmin'
+        firstName: 'Admin'
+        lastName: 'User'
+        isVerified: true
+
+    banned_user:
+        email: 'banned@example.com'
+        roles: ['ROLE_BANNED']
+        password: 'bannis'
+        firstName: 'Banned'
+        lastName: 'User'
+        isVerified: true

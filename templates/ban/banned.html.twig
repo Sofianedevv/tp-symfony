@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compte banni{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="text-danger mb-4">Compte banni</h1>
+                    <p class="lead">
+                        Votre compte a été banni par un administrateur.
+                    </p>
+                    <p>
+                        Si vous pensez qu'il s'agit d'une erreur, veuillez contacter l'administration.
+                    </p>
+                    <a href="{{ path('app_login') }}" class="btn btn-primary mt-3">Retour à la page de connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .text-danger {
+        color: #dc3545;
+    }
+    .lead {
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %} 

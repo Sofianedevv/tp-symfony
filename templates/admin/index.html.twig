@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">MonSite</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            Bonjour {{ app.user.firstName }} {{ app.user.lastName }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Administration</h1>
+        <div>
+            <a href="{{ path('app_admin_users') }}" class="btn btn-primary me-2">Gérer les utilisateurs</a>
+            <a href="{{ path('app_admin_subject_new') }}" class="btn btn-success">Ajouter une matière</a>
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for subject in subjects %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">{{ subject.name }}</h2>
+                <div>
+                    <a href="{{ path('app_admin_subject_edit', {'id': subject.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                    <a href="{{ path('app_admin_chapter_new', {'subject_id': subject.id}) }}" class="btn btn-success btn-sm">Ajouter un chapitre</a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if subject.chapters|length > 0 %}
+                    <div class="list-group">
+                        {% for chapter in subject.chapters %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ chapter.title }}
+                                <div>
+                                    <a href="{{ path('app_admin_exercice_new', {'chapter_id': chapter.id}) }}" class="btn btn-success btn-sm">Ajouter un exercice</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun chapitre pour cette matière.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+    .navbar {
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        margin-bottom: 2rem;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %} 
