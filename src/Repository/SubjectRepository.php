@@ -26,6 +26,19 @@ class SubjectRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function createQueryBuilderBySearch(?string $query)
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->orderBy('s.name', 'ASC');
+        
+        if ($query) {
+            $qb->where('LOWER(s.name) LIKE LOWER(:query)')
+               ->setParameter('query', '%' . $query . '%');
+        }
+        
+        return $qb;
+    }
+
 //    /**
 //     * @return Subject[] Returns an array of Subject objects
 //     */

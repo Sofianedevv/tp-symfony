@@ -24,9 +24,13 @@ class Subject
     #[ORM\OneToMany(targetEntity: Chapter::class, mappedBy: 'subject')]
     private Collection $chapters;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'favorites')]
+    private Collection $favoriteUsers;
+
     public function __construct()
     {
         $this->chapters = new ArrayCollection();
+        $this->favoriteUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -74,5 +78,13 @@ class Subject
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getFavoriteUsers(): Collection
+    {
+        return $this->favoriteUsers;
     }
 }

@@ -47,6 +47,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $notifications;
 
+    #[ORM\ManyToMany(targetEntity: Subject::class)]
+    #[ORM\JoinTable(name: 'user_favorites')]
+    private Collection $favorites;
+
 
     public function setRoles(array $roles): self
     {
@@ -83,8 +87,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->comments = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -202,6 +207,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUnreadNotificationsCount(): int
     {
         return $this->notifications->filter(fn(Notification $notification) => !$notification->isRead())->count();
+    }
+
+    /**
+     * @return Collection<int, Subject>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Subject $subject): self
+    {
+        if (!$this->favorites->contains($subject)) {
+            $this->favorites->add($subject);
+        }
+        return $this;
+    }
+
+    public function removeFavorite(Subject $subject): self
+    {
+        $this->favorites->removeElement($subject);
+        return $this;
+    }
+
+    public function isFavorite(Subject $subject): bool
+    {
+        return $this->favorites->contains($subject);
     }
 
    

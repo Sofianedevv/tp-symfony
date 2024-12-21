@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mes Matières Favorites</h1>
+        <a href="{{ path('app_home') }}" class="btn btn-outline-primary">Retour à l'accueil</a>
+    </div>
+
+    <div class="row">
+        {% if favorites|length > 0 %}
+            {% for subject in favorites %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title">{{ subject.name }}</h5>
+                                <button class="btn btn-link favorite-btn p-0" 
+                                        data-subject-id="{{ subject.id }}"
+                                        title="Retirer des favoris">
+                                    <i class="fas fa-star text-warning"></i>
+                                </button>
+                            </div>
+                            <p class="card-text">
+                                Découvrez nos exercices en {{ subject.name }}
+                            </p>
+                            <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-primary">Voir les chapitres</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Vous n'avez pas encore de matières favorites.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const subjectId = this.dataset.subjectId;
+            const cardElement = this.closest('.col-md-4');
+            
+            fetch(`/favorite/${subjectId}/toggle`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.isFavorite) {
+                    // Animation de suppression
+                    cardElement.style.transition = 'all 0.3s ease';
+                    cardElement.style.opacity = '0';
+                    cardElement.style.transform = 'scale(0.8)';
+                    
+                    setTimeout(() => {
+                        cardElement.remove();
+                        
+                        // Vérifier s'il reste des favoris
+                        const remainingCards = document.querySelectorAll('.card');
+                        if (remainingCards.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .favorite-btn {
+        cursor: pointer;
+    }
+    
+    .favorite-btn:hover .fa-star {
+        transform: scale(1.2);
+        transition: transform 0.2s ease;
+    }
+</style>
+{% endblock %} 
