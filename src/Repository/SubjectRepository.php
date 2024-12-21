@@ -16,6 +16,16 @@ class SubjectRepository extends ServiceEntityRepository
         parent::__construct($registry, Subject::class);
     }
 
+    public function searchByName(string $query)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('LOWER(s.name) LIKE LOWER(:query)')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('s.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Subject[] Returns an array of Subject objects
 //     */

@@ -16,11 +16,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\NotificationService;
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
+    private $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     #[Route('/', name: 'app_admin_index')]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -41,6 +49,12 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($subject);
             $entityManager->flush();
+
+            $this->notificationService->notifyAllUsers(
+                "Nouvelle matière disponible : " . $subject->getName(),
+                'new_subject',
+                $this->generateUrl('app_subject_show', ['id' => $subject->getId()])
+            );
 
             $this->addFlash('success', 'Matière ajoutée avec succès');
             return $this->redirectToRoute('app_admin_index');
@@ -85,6 +99,12 @@ class AdminController extends AbstractController
             $entityManager->persist($chapter);
             $entityManager->flush();
 
+            $this->notificationService->notifyAllUsers(
+                "Nouveau chapitre disponible : " . $chapter->getTitle() . " dans " . $subject->getName(),
+                'new_chapter',
+                $this->generateUrl('app_subject_show', ['id' => $subject->getId()])
+            );
+
             $this->addFlash('success', 'Chapitre ajouté avec succès');
             return $this->redirectToRoute('app_admin_index');
         }
@@ -109,6 +129,12 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($exercice);
             $entityManager->flush();
+
+            $this->notificationService->notifyAllUsers(
+                "Nouvel exercice disponible : " . $exercice->getTitle() . " dans " . $chapter->getTitle(),
+                'new_exercise',
+                $this->generateUrl('app_chapter_show', ['id' => $chapter->getId()])
+            );
 
             $this->addFlash('success', 'Exercice ajouté avec succès');
             return $this->redirectToRoute('app_admin_index');

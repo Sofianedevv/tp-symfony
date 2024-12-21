@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes notifications{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">MonSite</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            Bonjour {{ app.user.firstName }} {{ app.user.lastName }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mes notifications</h1>
+        <a href="{{ path('app_home') }}" class="btn btn-outline-primary">Retour à l'accueil</a>
+    </div>
+
+    <div class="notifications-list">
+        {% if notifications|length > 0 %}
+            {% for notification in notifications|sort((a, b) => b.createdAt <=> a.createdAt) %}
+                <div class="card mb-3 {% if not notification.isRead %}unread{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">
+                                {% if notification.type == 'new_subject' %}
+                                    <i class="fas fa-book text-primary"></i>
+                                {% elseif notification.type == 'new_chapter' %}
+                                    <i class="fas fa-bookmark text-success"></i>
+                                {% elseif notification.type == 'new_exercise' %}
+                                    <i class="fas fa-pencil-alt text-info"></i>
+                                {% endif %}
+                                {{ notification.message }}
+                            </h5>
+                            <small class="text-muted">{{ notification.createdAt|date('d/m/Y H:i') }}</small>
+                        </div>
+                        {% if notification.link %}
+                            <a href="{{ path('app_notification_mark_read', {'id': notification.id}) }}" 
+                               class="btn btn-primary">
+                                Voir le contenu
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                Vous n'avez aucune notification.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .unread {
+        border-left: 4px solid #007bff;
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .fas {
+        margin-right: 8px;
+    }
+    .notifications-list {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %} 

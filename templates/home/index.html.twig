@@ -26,10 +26,26 @@
                 {% endif %}
                 {% if app.user %}
                     <li class="nav-item">
+                        <a class="nav-link position-relative" href="{{ path('app_notifications') }}">
+                            Notifications
+                            {% if app.user.unreadNotificationsCount > 0 %}
+                                <span class="badge bg-danger rounded-pill">
+                                    {{ app.user.unreadNotificationsCount }}
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <span class="nav-link text-white">
                             Bonjour {{ app.user.lastName }} {{ app.user.firstName }} 
                         </span> 
                     </li>
+                    {# Dans la navbar, après le nom de l'utilisateur #}
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_profile') }}">Mon Profil</a>
+                    </li>
+                {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
                     </li>
@@ -47,22 +63,55 @@
 </nav>
 
 <div class="container mt-4">
-    <h1 class="mb-4">Nos Matières</h1>
-    
-    <div class="row">
-        {% for subject in subjects %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ subject.name }}</h5>
-                        <p class="card-text">
-                            Découvrez nos exercices en {{ subject.name }}
-                        </p>
-                        <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-primary">Voir les chapitres</a>
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <form action="{{ path('app_home') }}" method="get" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher une matière..." value="{{ query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            Rechercher
+                        </button>
                     </div>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <h1 class="mb-4">
+        {% if query %}
+            Résultats de recherche pour "{{ query }}"
+        {% else %}
+            Nos Matières
+        {% endif %}
+    </h1>
+    
+    <div class="row">
+        {% if subjects|length > 0 %}
+            {% for subject in subjects %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ subject.name }}</h5>
+                            <p class="card-text">
+                                Découvrez nos exercices en {{ subject.name }}
+                            </p>
+                            <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-primary">Voir les chapitres</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    {% if query %}
+                        Aucune matière trouvée pour "{{ query }}"
+                    {% else %}
+                        Aucune matière disponible pour le moment.
+                    {% endif %}
+                </div>
             </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
 
@@ -127,6 +176,26 @@
         color: #2c3e50;
         font-weight: bold;
         margin-bottom: 2rem;
+    }
+
+    .search-form {
+        margin-bottom: 2rem;
+    }
+    
+    .search-form .form-control {
+        border-radius: 20px 0 0 20px;
+        border: 1px solid #ddd;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .search-form .btn {
+        border-radius: 0 20px 20px 0;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .search-form .form-control:focus {
+        box-shadow: none;
+        border-color: #007bff;
     }
 </style>
 
