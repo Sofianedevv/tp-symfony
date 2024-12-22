@@ -1,1 +1,74 @@
-{% include 'partials/_navbar.html.twig' %} 
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('app_home') }}">
+        
+            EXERCICES
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+           
+            <ul class="navbar-nav">
+                
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_admin_index') }}">Administration</a>
+                    </li>
+                {% endif %}
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{{ path('app_notifications') }}">
+                            Notifications
+                            {% if app.user.unreadNotificationsCount > 0 %}
+                                <span class="badge bg-danger rounded-pill">
+                                    {{ app.user.unreadNotificationsCount }}
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_favorites') }}">
+                            <i class="fas fa-star"></i> Mes Favoris
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            Bonjour {{ app.user.lastName }} {{ app.user.firstName }} 
+                        </span> 
+                    </li>
+                    {# Dans la navbar, après le nom de l'utilisateur #}
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_profile') }}">Mon Profil</a>
+                    </li>
+                {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_register') }}">Inscription</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_contact') }}">Contact</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item d-flex align-items-center">
+                    <i class="fas fa-sun theme-icon"></i>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon theme-icon"></i>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -5,77 +5,7 @@
 {% block body %}
 <body>
 {# templates/partials/_navbar.html.twig #}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="{{ path('app_home') }}">
-        
-            MonSite
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-           
-            <ul class="navbar-nav">
-                
-                {% if is_granted('ROLE_ADMIN') %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_admin_index') }}">Administration</a>
-                    </li>
-                {% endif %}
-                {% if app.user %}
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{{ path('app_notifications') }}">
-                            Notifications
-                            {% if app.user.unreadNotificationsCount > 0 %}
-                                <span class="badge bg-danger rounded-pill">
-                                    {{ app.user.unreadNotificationsCount }}
-                                </span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_favorites') }}">
-                            <i class="fas fa-star"></i> Mes Favoris
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="nav-link text-white">
-                            Bonjour {{ app.user.lastName }} {{ app.user.firstName }} 
-                        </span> 
-                    </li>
-                    {# Dans la navbar, après le nom de l'utilisateur #}
-                {% if app.user %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_profile') }}">Mon Profil</a>
-                    </li>
-                {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_register') }}">Inscription</a>
-                    </li>
-                {% endif %}
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item d-flex align-items-center">
-                    <i class="fas fa-sun theme-icon"></i>
-                    <label class="theme-switch">
-                        <input type="checkbox" id="theme-toggle">
-                        <span class="slider"></span>
-                    </label>
-                    <i class="fas fa-moon theme-icon"></i>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
 
 <div class="container mt-4">
     <div class="row mb-4">
@@ -110,9 +40,9 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title">{{ subject.name }}</h5>
                                 {% if app.user %}
-                                    <button class="btn btn-link favorite-btn p-0" 
-                                            data-subject-id="{{ subject.id }}"
-                                            title="{{ app.user.isFavorite(subject) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                                    <button type="button" 
+                                            class="btn btn-link favorite-btn p-0" 
+                                            data-subject-id="{{ subject.id }}">
                                         <i class="fas fa-star {{ app.user.isFavorite(subject) ? 'text-warning' : 'text-muted' }}"></i>
                                     </button>
                                 {% endif %}
@@ -255,56 +185,86 @@
         border-color: var(--border-color);
         color: var(--text-color);
     }
+
+    .favorite-btn {
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    
+    .favorite-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .fa-star {
+        font-size: 1.2rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .favorite-btn:not(:disabled):hover .fa-star {
+        transform: scale(1.2);
+    }
+    
+    .alert {
+        transition: all 0.3s ease;
+    }
 </style>
 
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    const buttons = document.querySelectorAll('.favorite-btn');
     
-    favoriteButtons.forEach(button => {
-        button.addEventListener('click', async function(e) {
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation();
+            
+            if (this.disabled) return;
             
             const subjectId = this.dataset.subjectId;
             const icon = this.querySelector('i');
             
-            try {
-                const response = await fetch(`/favorite/${subjectId}/toggle`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            this.disabled = true;
+            
+            fetch(`/favorite/toggle/${subjectId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-
-                const data = await response.json();
-                console.log('Response:', data);
-
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
                 if (data.success) {
+                    // Update star
                     if (data.isFavorite) {
                         icon.classList.remove('text-muted');
                         icon.classList.add('text-warning');
-                        this.title = 'Retirer des favoris';
                     } else {
                         icon.classList.remove('text-warning');
                         icon.classList.add('text-muted');
-                        this.title = 'Ajouter aux favoris';
                     }
-
-                    if (window.location.pathname === '/favorites') {
-                        window.location.reload();
-                    }
+                    
+                    // Show toast
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+                    toast.style.zIndex = '1000';
+                    toast.textContent = data.message;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Une erreur est survenue lors de la mise à jour des favoris');
-            }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                setTimeout(() => {
+                    this.disabled = false;
+                }, 500);
+            });
         });
     });
 });

@@ -2,18 +2,18 @@
 
 namespace App\Controller;
 
-use App\Entity\Subject;
 use App\Repository\SubjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Knp\Component\Pager\PaginatorInterface;
 
 class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
+    #[Route('/', name: 'app_index')]
+    #[Route('/home', name: 'app_home')]
     public function index(Request $request, SubjectRepository $subjectRepository, PaginatorInterface $paginator): Response
     {
         $query = $request->query->get('q');
@@ -26,9 +26,9 @@ class HomeController extends AbstractController
         }
 
         $pagination = $paginator->paginate(
-            $queryBuilder, // Query
-            $request->query->getInt('page', 1), // Page number
-            5 // Limit per page
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            5
         );
 
         return $this->render('home/index.html.twig', [

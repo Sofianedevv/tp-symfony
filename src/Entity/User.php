@@ -51,6 +51,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_favorites')]
     private Collection $favorites;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $resetToken = null;
 
     public function setRoles(array $roles): self
     {
@@ -227,13 +229,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeFavorite(Subject $subject): self
     {
-        $this->favorites->removeElement($subject);
+        if ($this->favorites->contains($subject)) {
+            $this->favorites->removeElement($subject);
+        }
         return $this;
     }
 
     public function isFavorite(Subject $subject): bool
     {
         return $this->favorites->contains($subject);
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+        return $this;
     }
 
    

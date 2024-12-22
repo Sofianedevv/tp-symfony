@@ -28,15 +28,18 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/banned, roles: PUBLIC_ACCESS }
-        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
+        - { path: ^/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/banned, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/home, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/, roles: [ROLE_USER, IS_AUTHENTICATED_FULLY] }
 
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
-        ROLE_BANNED: ROLE_USER
 
     # Ajoutez cette section pour rediriger les utilisateurs bannis
     access_denied_url: /login

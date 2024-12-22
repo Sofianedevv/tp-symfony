@@ -12,7 +12,7 @@
     <div class="row">
         {% if favorites|length > 0 %}
             {% for subject in favorites %}
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4 favorite-card">
                     <div class="card h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -26,7 +26,12 @@
                             <p class="card-text">
                                 Découvrez nos exercices en {{ subject.name }}
                             </p>
-                            <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-primary">Voir les chapitres</a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ path('app_subject_show', {'id': subject.id}) }}" class="btn btn-primary">Voir les chapitres</a>
+                                <button class="btn btn-danger remove-favorite" data-subject-id="{{ subject.id }}">
+                                    Retirer des favoris
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -43,59 +48,98 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    const removeButtons = document.querySelectorAll('.remove-favorite');
     
-    favoriteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+    removeButtons.forEach(button => {
+        button.addEventListener('click', async function(e) {
             e.preventDefault();
             const subjectId = this.dataset.subjectId;
-            const cardElement = this.closest('.col-md-4');
+            const card = this.closest('.favorite-card');
             
-            fetch(`/favorite/${subjectId}/toggle`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.isFavorite) {
+            try {
+                const response = await fetch(`/favorite/toggle/${subjectId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                
+                if (data.success) {
                     // Animation de suppression
-                    cardElement.style.transition = 'all 0.3s ease';
-                    cardElement.style.opacity = '0';
-                    cardElement.style.transform = 'scale(0.8)';
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
                     
                     setTimeout(() => {
-                        cardElement.remove();
+                        card.remove();
                         
                         // Vérifier s'il reste des favoris
-                        const remainingCards = document.querySelectorAll('.card');
+                        const remainingCards = document.querySelectorAll('.favorite-card');
                         if (remainingCards.length === 0) {
                             location.reload();
                         }
                     }, 300);
+
+                    // Afficher un message toast
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+                    toast.style.zIndex = '1000';
+                    toast.textContent = data.message;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-            });
+            }
         });
     });
 });
 </script>
 
 <style>
-    .card {
-        transition: all 0.3s ease;
-    }
-    
     .favorite-btn {
         cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    
+    .favorite-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .fa-star {
+        font-size: 1.2rem;
+        transition: transform 0.2s ease;
     }
     
     .favorite-btn:hover .fa-star {
         transform: scale(1.2);
-        transition: transform 0.2s ease;
+    }
+
+    .favorite-card {
+        transition: all 0.3s ease;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger {
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        transform: scale(1.05);
+    }
+
+    .alert {
+        transition: all 0.3s ease;
     }
 </style>
 {% endblock %} 
