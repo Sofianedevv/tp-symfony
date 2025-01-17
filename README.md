@@ -11,6 +11,7 @@ Cloner le projet
 
 Installer les dépendances
     composer install  
+    composer require symfony/runtime
     
 Modifier les paramètres nécessaires dans le fichier .env si besoin, en particulier la connexion à la base de données :
 
