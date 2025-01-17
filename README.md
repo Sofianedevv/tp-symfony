@@ -8,8 +8,6 @@ Symfony CLI
 Installation:
 Cloner le projet
     git clone https://github.com/Sofianedevv/tp-symfony.git  
-    cd exercices
-
 
 Installer les dépendances
     composer install  
@@ -59,6 +57,7 @@ Fonctionnalités :
     Mot de passe oublié/réinitialisation via email
     Page de contact
     Gestion des emails avec Mailtrap
+    Pagination
 
 
 Entités: 
@@ -67,6 +66,5 @@ Entités:
     Subject
     User
     Comment
-    User_favorites
     Contact
     Notifications
